@@ -1,0 +1,25 @@
+.navbar {
+  padding: 15px 0;
+}
+
+.nav-link {
+  margin: 0 10px;
+  font-weight: 500;
+}
+
+.nav-link.active {
+  font-weight: bold;
+}
+
+.cart-badge {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+
+
+
+
+
+
+

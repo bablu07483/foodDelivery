@@ -1,0 +1,59 @@
+/* Food card image */
+.card-img-top {
+  height: 220px;              /* Slightly bigger image */
+  width: 100%;
+  object-fit: cover;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  transition: transform 0.4s ease, filter 0.4s ease;
+}
+
+/* Hover zoom effect */
+.card:hover .card-img-top {
+  transform: scale(1.05);
+  filter: brightness(0.95);
+}
+
+/* Card styling */
+.card {
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Card hover effect */
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Card body spacing */
+.card-body {
+  padding: 16px;
+}
+
+/* Title styling */
+.card-title {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+/* Price styling */
+.text-primary {
+  font-weight: 700;
+  color: #ff5722 !important;
+}
+
+/* Button spacing */
+.card .btn {
+  font-weight: 500;
+}
+
+
+
+
+
+
+
+

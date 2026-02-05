@@ -1,0 +1,59 @@
+<nav class="navbar navbar-expand-lg navbar-dark">
+  <div class="container">
+    <a class="navbar-brand" routerLink="/home">
+      <i class="bi bi-bag-heart"></i> FoodDelivery
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/home" routerLinkActive="active">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/foods" routerLinkActive="active">Foods</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/diet" routerLinkActive="active">Diet Section</a>
+        </li>
+        <li class="nav-item" *ngIf="isAuthenticated">
+          <a class="nav-link" routerLink="/orders" routerLinkActive="active">My Orders</a>
+        </li>
+        <li class="nav-item" *ngIf="isAdmin">
+          <a class="nav-link" routerLink="/admin" routerLinkActive="active">Admin</a>
+        </li>
+      </ul>
+      <ul class="navbar-nav">
+        <li class="nav-item" *ngIf="!isAuthenticated">
+          <a class="nav-link" routerLink="/login">Login</a>
+        </li>
+        <li class="nav-item" *ngIf="!isAuthenticated">
+          <a class="nav-link" routerLink="/register">Register</a>
+        </li>
+        <li class="nav-item position-relative" *ngIf="isAuthenticated">
+          <a class="nav-link" routerLink="/cart">
+            <i class="bi bi-cart3"></i> Cart
+            <ng-container *ngIf="cartItemsCount$ | async as count">
+              <span class="cart-badge" *ngIf="count > 0">{{ count }}</span>
+            </ng-container>
+          </a>
+        </li>
+        <li class="nav-item dropdown" *ngIf="isAuthenticated">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+            <i class="bi bi-person-circle"></i> {{ user?.name }}
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" (click)="logout()">Logout</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+
+
+
+
+

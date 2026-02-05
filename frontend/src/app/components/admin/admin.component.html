@@ -1,0 +1,219 @@
+<div class="container my-5">
+  <h2 class="section-title">Admin Dashboard</h2>
+
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab === 'foods'" (click)="activeTab = 'foods'">Foods</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab === 'restaurants'" (click)="activeTab = 'restaurants'">Restaurants</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" [class.active]="activeTab === 'orders'" (click)="activeTab = 'orders'">Orders</a>
+    </li>
+  </ul>
+
+  <!-- Foods Tab -->
+  <div *ngIf="activeTab === 'foods'">
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5>{{ editingFood ? 'Edit Food' : 'Add New Food' }}</h5>
+        <form (ngSubmit)="editingFood ? updateFood() : createFood()">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Name *</label>
+              <input type="text" class="form-control" [(ngModel)]="foodForm.name" name="name" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Category *</label>
+              <select class="form-select" [(ngModel)]="foodForm.category" name="category" required>
+                <option value="veg">Vegetarian</option>
+                <option value="non-veg">Non-Vegetarian</option>
+              </select>
+            </div>
+            <div class="col-md-12 mb-3">
+              <label class="form-label">Description</label>
+              <textarea class="form-control" [(ngModel)]="foodForm.description" name="description" rows="2"></textarea>
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Price *</label>
+              <input type="number" class="form-control" [(ngModel)]="foodForm.price" name="price" required min="0">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Restaurant *</label>
+              <select class="form-select" [(ngModel)]="foodForm.restaurant" name="restaurant" required>
+                <option value="">Select Restaurant</option>
+                <option *ngFor="let restaurant of restaurants" [value]="restaurant._id">{{ restaurant.name }}</option>
+              </select>
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Image URL</label>
+              <input type="text" class="form-control" [(ngModel)]="foodForm.image" name="image">
+            </div>
+            <div class="col-md-12 mb-3">
+              <h6>Nutritional Information</h6>
+              <div class="row">
+                <div class="col-md-2 mb-2">
+                  <label class="form-label">Calories</label>
+                  <input type="number" class="form-control" [(ngModel)]="foodForm.nutrition.calories" name="calories" min="0">
+                </div>
+                <div class="col-md-2 mb-2">
+                  <label class="form-label">Protein (g)</label>
+                  <input type="number" class="form-control" [(ngModel)]="foodForm.nutrition.protein" name="protein" min="0">
+                </div>
+                <div class="col-md-2 mb-2">
+                  <label class="form-label">Carbs (g)</label>
+                  <input type="number" class="form-control" [(ngModel)]="foodForm.nutrition.carbohydrates" name="carbs" min="0">
+                </div>
+                <div class="col-md-2 mb-2">
+                  <label class="form-label">Fats (g)</label>
+                  <input type="number" class="form-control" [(ngModel)]="foodForm.nutrition.fats" name="fats" min="0">
+                </div>
+                <div class="col-md-2 mb-2">
+                  <label class="form-label">Fiber (g)</label>
+                  <input type="number" class="form-control" [(ngModel)]="foodForm.nutrition.fiber" name="fiber" min="0">
+                </div>
+              </div>
+            </div>
+            <div class="col-md-12">
+              <button type="submit" class="btn btn-primary">{{ editingFood ? 'Update' : 'Create' }} Food</button>
+              <button type="button" class="btn btn-secondary ms-2" (click)="resetFoodForm()" *ngIf="editingFood">Cancel</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Restaurant</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let food of foods">
+            <td>{{ food.name }}</td>
+            <td><span class="badge" [ngClass]="food.category === 'veg' ? 'bg-success' : 'bg-danger'">{{ food.category }}</span></td>
+            <td>₹{{ food.price }}</td>
+            <td>{{ food.restaurant?.name || 'N/A' }}</td>
+            <td>
+              <button class="btn btn-sm btn-primary" (click)="editFood(food)">Edit</button>
+              <button class="btn btn-sm btn-danger ms-2" (click)="deleteFood(food._id)">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Restaurants Tab -->
+  <div *ngIf="activeTab === 'restaurants'">
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5>{{ editingRestaurant ? 'Edit Restaurant' : 'Add New Restaurant' }}</h5>
+        <form (ngSubmit)="editingRestaurant ? updateRestaurant() : createRestaurant()">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Name *</label>
+              <input type="text" class="form-control" [(ngModel)]="restaurantForm.name" name="name" required>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Cuisine</label>
+              <input type="text" class="form-control" [(ngModel)]="restaurantForm.cuisine" name="cuisine">
+            </div>
+            <div class="col-md-12 mb-3">
+              <label class="form-label">Description</label>
+              <textarea class="form-control" [(ngModel)]="restaurantForm.description" name="description" rows="2"></textarea>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Address</label>
+              <input type="text" class="form-control" [(ngModel)]="restaurantForm.address" name="address">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Phone</label>
+              <input type="tel" class="form-control" [(ngModel)]="restaurantForm.phone" name="phone">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Image URL</label>
+              <input type="text" class="form-control" [(ngModel)]="restaurantForm.image" name="image">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Rating</label>
+              <input type="number" class="form-control" [(ngModel)]="restaurantForm.rating" name="rating" min="0" max="5" step="0.1">
+            </div>
+            <div class="col-md-12">
+              <button type="submit" class="btn btn-primary">{{ editingRestaurant ? 'Update' : 'Create' }} Restaurant</button>
+              <button type="button" class="btn btn-secondary ms-2" (click)="resetRestaurantForm()" *ngIf="editingRestaurant">Cancel</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Cuisine</th>
+            <th>Address</th>
+            <th>Rating</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let restaurant of restaurants">
+            <td>{{ restaurant.name }}</td>
+            <td>{{ restaurant.cuisine || 'N/A' }}</td>
+            <td>{{ restaurant.address || 'N/A' }}</td>
+            <td>{{ restaurant.rating || 'N/A' }}</td>
+            <td>
+              <button class="btn btn-sm btn-primary" (click)="editRestaurant(restaurant)">Edit</button>
+              <button class="btn btn-sm btn-danger ms-2" (click)="deleteRestaurant(restaurant._id)">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Orders Tab -->
+  <div *ngIf="activeTab === 'orders'">
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>User</th>
+            <th>Items</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of orders">
+            <td>{{ order._id.slice(-8) }}</td>
+            <td>{{ order.user?.name || 'N/A' }}</td>
+            <td>{{ order.items.length }} item(s)</td>
+            <td>₹{{ order.totalAmount }}</td>
+            <td><span class="badge" [ngClass]="'bg-' + getStatusClass(order.status)">{{ order.status }}</span></td>
+            <td>{{ order.createdAt | date:'short' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+

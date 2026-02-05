@@ -1,0 +1,18 @@
+.nutrition-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.img-fluid {
+  max-height: 500px;
+  object-fit: cover;
+}
+
+
+
+
+
+
+

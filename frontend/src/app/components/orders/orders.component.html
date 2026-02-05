@@ -1,0 +1,74 @@
+<div class="container my-5">
+  <h2 class="section-title">My Orders</h2>
+
+  <div *ngIf="!loading && orders.length > 0">
+    <div class="card mb-4" *ngFor="let order of orders">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div>
+            <h5 class="card-title">Order #{{ order._id.slice(-8) }}</h5>
+            <p class="text-muted mb-0">
+              <i class="bi bi-calendar"></i> {{ order.createdAt | date:'medium' }}
+            </p>
+          </div>
+          <div>
+            <span class="badge" [ngClass]="'bg-' + getStatusClass(order.status)">
+              {{ order.status }}
+            </span>
+            <p class="h5 text-primary mb-0 mt-2">₹{{ order.totalAmount }}</p>
+          </div>
+        </div>
+
+        <hr>
+
+        <div class="mb-3">
+          <h6>Items:</h6>
+          <div class="row">
+            <div class="col-md-6 mb-2" *ngFor="let item of order.items">
+              <div class="d-flex align-items-center">
+                <img [src]="item.food?.image || 'https://via.placeholder.com/60x60'" 
+                     style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; margin-right: 10px;" 
+                     [alt]="item.food?.name">
+                <div>
+                  <strong>{{ item.food?.name }}</strong>
+                  <p class="mb-0 text-muted">Qty: {{ item.quantity }} × ₹{{ item.price }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <p class="mb-1"><strong>Delivery Address:</strong></p>
+            <p class="text-muted">{{ order.deliveryAddress }}</p>
+          </div>
+          <div class="col-md-6">
+            <p class="mb-1"><strong>Phone:</strong></p>
+            <p class="text-muted">{{ order.phone }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="text-center" *ngIf="loading">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="!loading && orders.length === 0">
+    <i class="bi bi-inbox"></i>
+    <h4>No orders yet</h4>
+    <p>Start ordering delicious food</p>
+    <button class="btn btn-primary" routerLink="/foods">Browse Foods</button>
+  </div>
+</div>
+
+
+
+
+
+
+

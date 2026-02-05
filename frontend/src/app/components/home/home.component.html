@@ -1,0 +1,106 @@
+<div class="hero-section text-center">
+  <div class="container py-5">
+    <h1 class="fw-bold text-white">Discover Your Favorite Food</h1>
+    <p class="text-white fs-5">From top restaurants to healthy diet meals</p>
+    <button class="btn btn-warning btn-lg mt-3" routerLink="/foods">
+      Order Now
+    </button>
+  </div>
+</div>
+<div class="container my-5 text-center">
+  <h2 class="section-title">Food Categories</h2>
+
+  <div class="d-flex justify-content-center gap-4 mt-4 flex-wrap">
+    <div class="category-box">
+      <img src="assets/icons/pizza.png">
+    
+
+      <p>Pizza</p>
+    </div>
+
+    <div class="category-box">
+      <img src="assets/icons/burger.png">
+      <p>Burger</p>
+    </div>
+
+    <div class="category-box">
+      <img src="assets/icons/biryani.png">
+      <p>Biryani</p>
+    </div>
+
+    <div class="category-box">
+      <img src="assets/icons/healthy.png">
+      <p>Diet</p>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="container my-5">
+  <h2 class="section-title">Featured Restaurants</h2>
+  <div class="row" *ngIf="!loading">
+    <div class="col-md-4 mb-4" *ngFor="let restaurant of restaurants">
+      <div class="card">
+        <img [src]="restaurant.image || 'https://via.placeholder.com/300x200'" class="card-img-top" [alt]="restaurant.name">
+        <div class="card-body">
+          <h5 class="card-title">{{ restaurant.name }}</h5>
+          <p class="card-text">{{ restaurant.description || restaurant.cuisine }}</p>
+          <p class="text-muted"><i class="bi bi-star-fill text-warning"></i> {{ restaurant.rating || 'N/A' }}</p>
+          <button class="btn btn-primary" (click)="viewRestaurant(restaurant._id)">View Menu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="text-center" *ngIf="loading">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+  <div class="text-center mt-4">
+    <button class="btn btn-outline-primary" routerLink="/foods">View All Restaurants</button>
+  </div>
+</div>
+
+<div class="container my-5">
+  <h2 class="section-title">Popular Foods</h2>
+  <div class="row">
+    <div class="col-md-4 mb-4" *ngFor="let food of featuredFoods">
+      <div class="card">
+        <img [src]="food.image || 'https://via.placeholder.com/300x200'" class="card-img-top" [alt]="food.name">
+        <div class="card-body">
+          <h5 class="card-title">
+            {{ food.name }}
+            <span class="badge" [ngClass]="food.category === 'veg' ? 'bg-success' : 'bg-danger'">
+              {{ food.category === 'veg' ? 'Veg' : 'Non-Veg' }}
+            </span>
+          </h5>
+          <p class="card-text">{{ food.description || 'Delicious food item' }}</p>
+          <p class="h5 text-primary">₹{{ food.price }}</p>
+          <button class="btn btn-primary" (click)="viewFood(food._id)">View Details</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="text-center mt-4">
+    <button class="btn btn-outline-primary" routerLink="/foods">View All Foods</button>
+  </div>
+</div>
+
+<div class="container my-5">
+  <div class="card bg-light">
+    <div class="card-body text-center p-5">
+      <h3>Looking for Healthy Options?</h3>
+      <p class="lead">Check out our Diet Section with detailed nutritional information</p>
+      <button class="btn btn-primary btn-lg" routerLink="/diet">Explore Diet Section</button>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+

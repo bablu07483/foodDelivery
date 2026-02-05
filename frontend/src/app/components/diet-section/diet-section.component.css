@@ -1,0 +1,94 @@
+/* Card styling */
+.card {
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Image */
+.card-img-top {
+  height: 200px;
+  object-fit: cover;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+}
+
+/* Nutrition Section */
+.nutrition-section {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 12px;
+  margin: 15px 0;
+}
+
+/* Nutrition badges layout */
+.nutrition-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Common badge style */
+.nutrition-badge {
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  border-radius: 20px;
+  font-weight: 500;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Individual nutrition colors */
+.nutrition-calories {
+  background-color: #ff6b6b;
+}
+
+.nutrition-protein {
+  background-color: #4dabf7;
+}
+
+.nutrition-carbs {
+  background-color: #f59f00;
+}
+
+.nutrition-fats {
+  background-color: #37b24d;
+}
+
+.nutrition-fiber {
+  background-color: #845ef7;
+}
+
+/* Buttons spacing */
+.card-body .btn {
+  border-radius: 25px;
+  padding: 6px 14px;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6c757d;
+}
+
+.empty-state i {
+  font-size: 48px;
+  margin-bottom: 10px;
+}
+
+
+
+
+
+
+
+

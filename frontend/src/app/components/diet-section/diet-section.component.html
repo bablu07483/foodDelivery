@@ -1,0 +1,94 @@
+<div class="hero-section">
+  <div class="container">
+    <h1>Diet Section</h1>
+    <p>Make informed food choices with detailed nutritional information</p>
+    <p class="lead">Perfect for fitness enthusiasts and health-conscious individuals</p>
+  </div>
+</div>
+
+<div class="container my-5">
+  <div class="filter-section">
+    <div class="row">
+      <div class="col-md-6">
+        <label class="form-label">Filter by Category</label>
+        <select class="form-select" [(ngModel)]="selectedCategory" (change)="onCategoryChange()">
+          <option value="diet">All Diet Foods</option>
+          <option value="high-protein">High Protein</option>
+          <option value="low-carb">Low Carb</option>
+          <option value="weight-loss">Weight Loss</option>
+          </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="row" *ngIf="!loading">
+    <div class="col-md-4 mb-4" *ngFor="let food of foods">
+      <div class="card">
+        <img [src]="food.image || 'https://via.placeholder.com/300x200'" class="card-img-top" [alt]="food.name">
+        <div class="card-body">
+          <h5 class="card-title">
+            {{ food.name }}
+            <span class="badge" [ngClass]="food.category === 'veg' ? 'bg-success' : 'bg-danger'">
+              {{ food.category === 'veg' ? 'Veg' : 'Non-Veg' }}
+            </span>
+          </h5>
+          <p class="card-text">{{ food.description || 'Healthy food option' }}</p>
+          <p class="text-muted">
+            <small>Restaurant: {{ food.restaurant?.name || 'Unknown' }}</small>
+
+          </p>
+          
+          <div class="nutrition-section mb-3">
+            <h6 class="mb-2">Nutritional Info (per serving):</h6>
+          
+            <span class="nutrition-badge nutrition-calories">
+              🔥 {{ food.nutrition?.calories || 0 }} Cal
+            </span>
+            
+            <span class="nutrition-badge nutrition-protein">
+              💪 {{ food.nutrition?.protein || 0 }}g Protein
+            </span>
+            
+            <span class="nutrition-badge nutrition-carbs">
+              🍞 {{ food.nutrition?.carbs || 0 }}g Carbs
+            </span>
+            
+            <span class="nutrition-badge nutrition-fats">
+              🥑 {{ food.nutrition?.fat || 0 }}g Fat
+            </span>
+            
+            <span class="nutrition-badge nutrition-fiber">
+              ❤️ {{ food.nutrition?.fiber || 0 }}g Fiber
+            </span>
+            </div>
+          <p class="h5 text-primary mb-3">₹{{ food.price }}</p>
+          <div class="d-flex gap-2">
+            <button class="btn btn-primary" (click)="viewDetails(food._id)">View Details</button>
+            <button class="btn btn-success" (click)="addToCart(food)">
+              <i class="bi bi-cart-plus"></i> Add to Cart
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="text-center" *ngIf="loading">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="!loading && foods.length === 0">
+    <i class="bi bi-inbox"></i>
+    <h4>No diet foods found</h4>
+    <p>Try adjusting your filters</p>
+  </div>
+</div>
+
+
+
+
+
+
+
