@@ -2,9 +2,15 @@ const mongoose = require('mongoose');
 
 const orderItemSchema = new mongoose.Schema({
   food: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Food',
+    type: String, // Supports both MongoDB ObjectIds and custom Diet IDs
     required: true
+  },
+  name: { 
+    type: String,
+    required: true 
+  },
+  image: { 
+    type: String // ✅ Stores the image URL directly in the order
   },
   quantity: {
     type: Number,
@@ -31,7 +37,7 @@ const orderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'confirmed', 'preparing', 'out for delivery', 'delivered', 'cancelled'],
+    enum: ['pending', 'confirmed', 'preparing', 'pick-up','on the way', 'delivered', 'cancelled'],
     default: 'pending'
   },
   deliveryAddress: {
@@ -47,6 +53,3 @@ const orderSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model('Order', orderSchema);
-
-
-

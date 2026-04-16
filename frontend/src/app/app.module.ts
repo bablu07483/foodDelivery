@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -10,11 +11,12 @@ import { HomeComponent } from './components/home/home.component';
 import { FoodListComponent } from './components/food-list/food-list.component';
 import { CartComponent } from './components/cart/cart.component';
 import { OrdersComponent } from './components/orders/orders.component';
-import { DietSectionComponent } from './components/diet-section/diet-section.component';
+import { DietComponent } from './components/diet-section/diet-section.component';
 import { AdminComponent } from './components/admin/admin.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { FoodDetailComponent } from './components/food-detail/food-detail.component';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
+import { ProfileComponent } from './components/profile/components/profile/profile.component';
 
 @NgModule({
   declarations: [
@@ -25,13 +27,15 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     FoodListComponent,
     CartComponent,
     OrdersComponent,
-    DietSectionComponent,
+    DietComponent,
     AdminComponent,
     NavbarComponent,
-    FoodDetailComponent
+    FoodDetailComponent,
+    ProfileComponent
   ],
   imports: [
     BrowserModule,
+    CommonModule,
     AppRoutingModule,
     HttpClientModule,
     FormsModule,

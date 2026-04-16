@@ -36,6 +36,17 @@ export class AuthService {
   register(userData: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/auth/register`, userData).pipe(
       tap((response: any) => {
+        // REMOVED auto-login logic here. 
+        // User must go to login page and verify OTP to be "Authenticated".
+        console.log('User registered successfully. Proceed to login for OTP.');
+      })
+    );
+  }
+
+  login(credentials: { email: string; password: string }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/auth/login`, credentials).pipe(
+      tap((response: any) => {
+        // If OTP is required, we don't save token yet
         if (response.token && response.user) {
           localStorage.setItem('token', response.token);
           localStorage.setItem('user', JSON.stringify(response.user));
@@ -45,9 +56,10 @@ export class AuthService {
     );
   }
 
-  login(credentials: { email: string; password: string }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/auth/login`, credentials).pipe(
+  verifyOtp(data: { email: string; otp: string }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/auth/verify-otp`, data).pipe(
       tap((response: any) => {
+        // Final authentication happens here
         if (response.token && response.user) {
           localStorage.setItem('token', response.token);
           localStorage.setItem('user', JSON.stringify(response.user));
@@ -83,7 +95,8 @@ export class AuthService {
   getMe(): Observable<any> {
     return this.http.get(`${this.apiUrl}/auth/me`);
   }
+
+  getProfile(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/users/profile`); 
+  }
 }
-
-
-

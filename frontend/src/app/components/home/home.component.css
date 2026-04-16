@@ -1,15 +1,63 @@
+/* Hero Section Background (Replace with your actual image path) */
 .hero-section {
-  margin-bottom: 0;
-  min-height: 50vh;
-  background: linear-gradient(to right, #667eea, #764ba2);
-  color: rgb(179, 56, 56);
+  background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
+              url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1350&q=80');
+  background-size: cover;
+  background-position: center;
+  padding: 100px 0;
+  border-radius: 0 0 30px 30px;
 }
 
+/* Category Card Styling */
+.category-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #ffffff;
+  border-radius: 20px;
+}
 
+.category-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.12) !important;
+  background: #fffdf7; /* Slight yellow tint on hover */
+}
 
+.icon-wrapper {
+  background: #fdf2e9;
+  padding: 15px;
+  border-radius: 50%;
+  transition: background 0.3s ease;
+}
 
+.category-card:hover .icon-wrapper {
+  background: #ffe5d0;
+}
 
+/* Section Title with Underline */
+.section-title {
+  font-weight: 800;
+  color: #2d3436;
+  position: relative;
+  display: inline-block;
+  padding-bottom: 12px;
+}
 
+.section-title::after {
+  content: "";
+  position: absolute;
+  width: 60%;
+  height: 4px;
+  background: #ffc107;
+  bottom: 0;
+  left: 20%;
+  border-radius: 2px;
+}
 
+/* Card Improvements */
+.card {
+  transition: transform 0.2s;
+}
 
-
+.card:hover {
+  transform: scale(1.02);
+}

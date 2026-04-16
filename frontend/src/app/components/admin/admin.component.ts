@@ -13,9 +13,9 @@ export class AdminComponent implements OnInit {
   foods: any[] = [];
   restaurants: any[] = [];
   orders: any[] = [];
+  users: any[] = []; 
   loading = false;
 
-  // Form data
   foodForm: any = {
     name: '',
     description: '',
@@ -55,9 +55,28 @@ export class AdminComponent implements OnInit {
     this.loadFoods();
     this.loadRestaurants();
     this.loadOrders();
+    this.loadUsers(); 
   }
 
-  // Foods
+  loadUsers() {
+    this.adminService.getAllUsers().subscribe({
+      next: (data) => this.users = data,
+      error: (err) => console.error('Error loading users:', err)
+    });
+  }
+
+  getUserOrders(userId: string) {
+    if (!this.orders) return [];
+    return this.orders.filter(order => {
+      const orderUserId = order.user?._id || order.user;
+      return orderUserId === userId;
+    });
+  }
+
+  getUserOrderCount(userId: string) {
+    return this.getUserOrders(userId).length;
+  }
+
   loadFoods() {
     this.loading = true;
     this.foodService.getFoods().subscribe({
@@ -74,23 +93,15 @@ export class AdminComponent implements OnInit {
 
   loadRestaurants() {
     this.restaurantService.getRestaurants().subscribe({
-      next: (data) => {
-        this.restaurants = data;
-      },
-      error: (err) => {
-        console.error('Error loading restaurants:', err);
-      }
+      next: (data) => this.restaurants = data,
+      error: (err) => console.error('Error loading restaurants:', err)
     });
   }
 
   loadOrders() {
     this.adminService.getAllOrders().subscribe({
-      next: (data) => {
-        this.orders = data;
-      },
-      error: (err) => {
-        console.error('Error loading orders:', err);
-      }
+      next: (data) => this.orders = data,
+      error: (err) => console.error('Error loading orders:', err)
     });
   }
 
@@ -102,7 +113,8 @@ export class AdminComponent implements OnInit {
         this.loadFoods();
       },
       error: (err) => {
-        alert('Error creating food: ' + (err.error?.message || 'Unknown error'));
+        console.error('Create Error:', err);
+        alert('Error: ' + (err.error?.message || 'Failed to create food item. Check your authorization.'));
       }
     });
   }
@@ -116,51 +128,34 @@ export class AdminComponent implements OnInit {
         this.loadFoods();
       },
       error: (err) => {
-        alert('Error updating food: ' + (err.error?.message || 'Unknown error'));
+        console.error('Update Error:', err);
+        alert('Error: ' + (err.error?.message || 'Failed to update food.'));
       }
     });
   }
 
   deleteFood(id: string) {
-    if (confirm('Are you sure you want to delete this food item?')) {
+    if (confirm('Delete this food item?')) {
       this.adminService.deleteFood(id).subscribe({
-        next: () => {
-          alert('Food deleted successfully!');
-          this.loadFoods();
-        },
-        error: (err) => {
-          alert('Error deleting food: ' + (err.error?.message || 'Unknown error'));
-        }
+        next: () => this.loadFoods(),
+        error: (err) => alert('Error: ' + (err.error?.message || 'Delete failed'))
       });
     }
   }
 
   editFood(food: any) {
     this.editingFood = food;
-    this.foodForm = { ...food };
-    this.foodForm.restaurant = food.restaurant._id || food.restaurant;
+    this.foodForm = JSON.parse(JSON.stringify(food));
+    if (food.restaurant && typeof food.restaurant === 'object') {
+      this.foodForm.restaurant = food.restaurant._id;
+    }
   }
 
   resetFoodForm() {
-    this.foodForm = {
-      name: '',
-      description: '',
-      category: 'veg',
-      price: 0,
-      image: '',
-      restaurant: '',
-      nutrition: {
-        calories: 0,
-        protein: 0,
-        fiber: 0,
-        carbohydrates: 0,
-        fats: 0
-      }
-    };
+    this.foodForm = { name: '', description: '', category: 'veg', price: 0, image: '', restaurant: '', nutrition: { calories: 0, protein: 0, fiber: 0, carbohydrates: 0, fats: 0 } };
     this.editingFood = null;
   }
 
-  // Restaurants
   createRestaurant() {
     this.adminService.createRestaurant(this.restaurantForm).subscribe({
       next: () => {
@@ -168,9 +163,7 @@ export class AdminComponent implements OnInit {
         this.resetRestaurantForm();
         this.loadRestaurants();
       },
-      error: (err) => {
-        alert('Error creating restaurant: ' + (err.error?.message || 'Unknown error'));
-      }
+      error: (err) => alert('Error: ' + (err.error?.message || 'Authorization denied.'))
     });
   }
 
@@ -182,22 +175,15 @@ export class AdminComponent implements OnInit {
         this.resetRestaurantForm();
         this.loadRestaurants();
       },
-      error: (err) => {
-        alert('Error updating restaurant: ' + (err.error?.message || 'Unknown error'));
-      }
+      error: (err) => alert('Error: ' + (err.error?.message || 'Update failed.'))
     });
   }
 
   deleteRestaurant(id: string) {
-    if (confirm('Are you sure you want to delete this restaurant?')) {
+    if (confirm('Delete this restaurant?')) {
       this.adminService.deleteRestaurant(id).subscribe({
-        next: () => {
-          alert('Restaurant deleted successfully!');
-          this.loadRestaurants();
-        },
-        error: (err) => {
-          alert('Error deleting restaurant: ' + (err.error?.message || 'Unknown error'));
-        }
+        next: () => this.loadRestaurants(),
+        error: (err) => alert('Error: ' + (err.error?.message || 'Delete failed'))
       });
     }
   }
@@ -208,15 +194,7 @@ export class AdminComponent implements OnInit {
   }
 
   resetRestaurantForm() {
-    this.restaurantForm = {
-      name: '',
-      description: '',
-      cuisine: '',
-      image: '',
-      address: '',
-      phone: '',
-      rating: 0
-    };
+    this.restaurantForm = { name: '', description: '', cuisine: '', image: '', address: '', phone: '', rating: 0 };
     this.editingRestaurant = null;
   }
 
@@ -229,12 +207,6 @@ export class AdminComponent implements OnInit {
       'delivered': 'success',
       'cancelled': 'danger'
     };
-    return statusClasses[status] || 'secondary';
+    return statusClasses[status.toLowerCase()] || 'secondary';
   }
 }
-
-
-
-
-
-

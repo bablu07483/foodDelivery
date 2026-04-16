@@ -1,74 +1,160 @@
 <div class="container my-5">
-  <h2 class="section-title">My Orders</h2>
+  <h2 class="fw-bold mb-4 text-dark">My Orders</h2>
+
+  <div class="text-center py-5" *ngIf="loading">
+    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2 text-muted">Tracking your orders...</p>
+  </div>
 
   <div *ngIf="!loading && orders.length > 0">
-    <div class="card mb-4" *ngFor="let order of orders">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-start mb-3">
+    <div class="card mb-4 shadow-sm border-0 rounded-4 overflow-hidden" *ngFor="let order of orders">
+      
+      <div class="card-header bg-white border-0 pt-4 px-4">
+        <div class="d-flex justify-content-between align-items-start">
           <div>
-            <h5 class="card-title">Order #{{ order._id.slice(-8) }}</h5>
-            <p class="text-muted mb-0">
-              <i class="bi bi-calendar"></i> {{ order.createdAt | date:'medium' }}
+            <h5 class="card-title fw-bold mb-1">Order #{{ order._id.slice(-8) | uppercase }}</h5>
+            <p class="text-muted mb-0 small">
+              <i class="bi bi-calendar-event me-1"></i> {{ order.createdAt | date:'medium' }}
             </p>
           </div>
-          <div>
-            <span class="badge" [ngClass]="'bg-' + getStatusClass(order.status)">
+          <div class="text-end">
+            <span class="badge rounded-pill px-3 py-2 text-uppercase shadow-sm" [ngClass]="'bg-' + getStatusClass(order.status)">
               {{ order.status }}
             </span>
-            <p class="h5 text-primary mb-0 mt-2">₹{{ order.totalAmount }}</p>
+            <p class="h5 text-primary mb-0 mt-2 fw-bold">₹{{ order.totalAmount }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body px-4 pb-4">
+        
+        <div class="tracking-timeline my-4" *ngIf="order.status.toLowerCase() !== 'cancelled'">
+          <div class="timeline-container">
+            
+            <div class="timeline-step" [ngClass]="getStepStatus(order.status, 'confirmed')">
+              <div class="icon-circle">
+                <i class="bi bi-check-circle-fill"></i>
+              </div>
+              <span class="step-label">Confirmed</span>
+            </div>
+
+            <div class="timeline-step" [ngClass]="getStepStatus(order.status, 'preparing')">
+              <div class="icon-circle">
+                <i class="bi bi-egg-fried"></i>
+              </div>
+              <span class="step-label">Preparing</span>
+            </div>
+
+            <div class="timeline-step" [ngClass]="getStepStatus(order.status, 'pick-up')">
+              <div class="icon-circle">
+                <i class="bi bi-box-seam"></i>
+              </div>
+              <span class="step-label">Pick-up</span>
+            </div>
+
+            <div class="timeline-step" [ngClass]="getStepStatus(order.status, 'on the way')">
+              <div class="icon-circle">
+                <i class="bi bi-bicycle"></i>
+              </div>
+              <span class="step-label">On the way</span>
+            </div>
+
+            <div class="timeline-step" [ngClass]="getStepStatus(order.status, 'delivered')">
+              <div class="icon-circle">
+                <i class="bi bi-house-heart-fill"></i>
+              </div>
+              <span class="step-label">Delivered</span>
+            </div>
+
           </div>
         </div>
 
-        <hr>
+        <div class="alert alert-danger d-flex align-items-center rounded-3 border-0 shadow-sm" *ngIf="order.status.toLowerCase() === 'cancelled'">
+          <i class="bi bi-exclamation-octagon-fill me-2 fs-5"></i>
+          <div>This order was cancelled.</div>
+        </div>
 
-        <div class="mb-3">
-          <h6>Items:</h6>
-          <div class="row">
-            <div class="col-md-6 mb-2" *ngFor="let item of order.items">
-              <div class="d-flex align-items-center">
-                <img [src]="item.food?.image || 'https://via.placeholder.com/60x60'" 
-                     style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; margin-right: 10px;" 
-                     [alt]="item.food?.name">
-                <div>
-                  <strong>{{ item.food?.name }}</strong>
-                  <p class="mb-0 text-muted">Qty: {{ item.quantity }} × ₹{{ item.price }}</p>
+        <hr class="opacity-10 my-4">
+
+        <div class="mb-4">
+          <h6 class="fw-bold mb-3 text-muted small text-uppercase">Items Ordered</h6>
+          <div class="row g-3">
+            <div class="col-md-6" *ngFor="let item of order.items">
+              <div class="d-flex align-items-center p-2 border border-light rounded-3 bg-light shadow-sm transition-hover">
+                <img [src]="item.image || 'assets/default-food.jpg'" 
+                     class="rounded-2"
+                     style="width: 55px; height: 55px; object-fit: cover; margin-right: 12px;" 
+                     [alt]="item.name">
+                <div class="flex-grow-1">
+                  <h6 class="mb-0 fw-bold small text-dark">{{ item.name }}</h6>
+                  <p class="mb-0 text-muted extra-small">
+                    Qty: {{ item.quantity }} × ₹{{ item.price }}
+                  </p>
+                </div>
+                <div class="text-end">
+                    <span class="fw-bold text-dark small">₹{{ item.quantity * item.price }}</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="row">
-          <div class="col-md-6">
-            <p class="mb-1"><strong>Delivery Address:</strong></p>
-            <p class="text-muted">{{ order.deliveryAddress }}</p>
+        <div class="row g-0 bg-white border rounded-3 overflow-hidden mb-4 shadow-sm">
+          <div class="col-md-7 p-3 border-end">
+            <p class="mb-1 extra-small text-uppercase text-muted fw-bold">Delivery Location</p>
+            <p class="mb-0 small text-dark text-truncate">
+              <i class="bi bi-geo-alt-fill text-danger me-1"></i> {{ order.deliveryAddress }}
+            </p>
           </div>
-          <div class="col-md-6">
-            <p class="mb-1"><strong>Phone:</strong></p>
-            <p class="text-muted">{{ order.phone }}</p>
+          <div class="col-md-5 p-3">
+            <p class="mb-1 extra-small text-uppercase text-muted fw-bold">Contact Number</p>
+            <p class="mb-0 small text-dark">
+              <i class="bi bi-telephone-fill text-success me-1"></i> {{ order.phone }}
+            </p>
           </div>
         </div>
+
+        <div class="d-flex flex-wrap gap-2 align-items-center mt-4" 
+             *ngIf="['pending', 'confirmed', 'preparing'].includes(order.status.toLowerCase())">
+          
+          <button type="button" 
+                  class="btn btn-outline-danger btn-sm rounded-pill px-4 fw-bold" 
+                  (click)="cancelOrder(order._id); $event.stopPropagation()">
+            <i class="bi bi-x-circle me-1"></i> Cancel Order
+          </button>
+
+          <button type="button" 
+                  class="btn btn-primary btn-sm rounded-pill px-4 fw-bold shadow-sm" 
+                  (click)="editOrder(order); $event.stopPropagation()">
+            <i class="bi bi-pencil-square me-1"></i> Edit Items
+          </button>
+
+          <div class="ms-md-auto text-muted extra-small fst-italic">
+            <i class="bi bi-info-circle me-1"></i> 
+            Changes only allowed before the rider picks up food.
+          </div>
+        </div>
+
+        <div class="mt-4" *ngIf="['delivered', 'cancelled'].includes(order.status.toLowerCase())">
+           <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-4 fw-bold" routerLink="/foods">
+            <i class="bi bi-arrow-repeat me-1"></i> Order Again
+           </button>
+        </div>
+
       </div>
     </div>
   </div>
 
-  <div class="text-center" *ngIf="loading">
-    <div class="spinner-border" role="status">
-      <span class="visually-hidden">Loading...</span>
+  <div class="text-center py-5" *ngIf="!loading && orders.length === 0">
+    <div class="mb-4">
+        <i class="bi bi-cart-x display-1 text-muted opacity-25"></i>
     </div>
-  </div>
-
-  <div class="empty-state" *ngIf="!loading && orders.length === 0">
-    <i class="bi bi-inbox"></i>
-    <h4>No orders yet</h4>
-    <p>Start ordering delicious food</p>
-    <button class="btn btn-primary" routerLink="/foods">Browse Foods</button>
+    <h3 class="fw-bold">No orders yet</h3>
+    <p class="text-muted mb-4">Your delicious journey hasn't started. Let's fix that!</p>
+    <button type="button" class="btn btn-primary btn-lg rounded-pill px-5 shadow" routerLink="/foods">
+        Explore Menu
+    </button>
   </div>
 </div>
-
-
-
-
-
-
-

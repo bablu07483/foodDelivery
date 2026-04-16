@@ -6,9 +6,10 @@ import { HomeComponent } from './components/home/home.component';
 import { FoodListComponent } from './components/food-list/food-list.component';
 import { CartComponent } from './components/cart/cart.component';
 import { OrdersComponent } from './components/orders/orders.component';
-import { DietSectionComponent } from './components/diet-section/diet-section.component';
+import { DietComponent } from './components/diet-section/diet-section.component';
 import { AdminComponent } from './components/admin/admin.component';
 import { FoodDetailComponent } from './components/food-detail/food-detail.component';
+import { ProfileComponent } from './components/profile/components/profile/profile.component'; // Added this
 import { AuthGuard } from './guards/auth.guard';
 import { AdminGuard } from './guards/admin.guard';
 
@@ -19,7 +20,8 @@ const routes: Routes = [
   { path: 'home', component: HomeComponent },
   { path: 'foods', component: FoodListComponent },
   { path: 'foods/:id', component: FoodDetailComponent },
-  { path: 'diet', component: DietSectionComponent },
+  { path: 'diet', component: DietComponent },
+  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] }, // Added profile path
   { path: 'cart', component: CartComponent, canActivate: [AuthGuard] },
   { path: 'orders', component: OrdersComponent, canActivate: [AuthGuard] },
   { path: 'admin', component: AdminComponent, canActivate: [AuthGuard, AdminGuard] }
@@ -30,6 +32,3 @@ const routes: Routes = [
   exports: [RouterModule]
 })
 export class AppRoutingModule { }
-
-
-

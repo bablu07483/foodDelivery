@@ -1,118 +1,86 @@
 const express = require('express');
+const router = express.Router();
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const { auth } = require('../middleware/auth');
+const {auth} = require('../middleware/auth');
+const { sendWelcomeEmail, sendOTPEmail } = require('../utils/sendEmail'); 
 
-const router = express.Router();
-
-// Register
+// REGISTER
 router.post('/register', async (req, res) => {
   try {
     const { name, email, password, phone, address } = req.body;
-
-    // Check if user exists
     const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
-    }
+    if (existingUser) return res.status(400).json({ message: 'User already exists' });
 
-    // Create user
-    const user = new User({
-      name,
-      email,
-      password,
-      phone,
-      address
-    });
-
+    const user = new User({ name, email, password, phone, address });
     await user.save();
+    sendWelcomeEmail(user.email, user.name);
 
-    // Generate token
-    if (!process.env.JWT_SECRET) {
-      return res.status(500).json({ message: 'JWT_SECRET not configured' });
-    }
-    const token = jwt.sign(
-      { userId: user._id },
-      process.env.JWT_SECRET,
-      { expiresIn: '7d' }
-    );
-
-    res.status(201).json({
-      message: 'User registered successfully',
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      }
-    });
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    res.status(201).json({ token, user: { id: user._id, name: user.name, role: user.role } });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ message: error.message });
   }
 });
 
-// Login
+// LOGIN (Phase 1: Verify Credentials & Send OTP)
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-
-    // Find user
     const user = await User.findOne({ email });
+    
+    // Check if email exists
     if (!user) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(404).json({ message: 'Email is not registered' });
     }
 
     // Check password
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
+    if (!(await user.comparePassword(password))) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // Generate token
-    if (!process.env.JWT_SECRET) {
-      return res.status(500).json({ message: 'JWT_SECRET not configured' });
-    }
-    const token = jwt.sign(
-      { userId: user._id },
-      process.env.JWT_SECRET,
-      { expiresIn: '7d' }
-    );
+    // Generate 6-digit OTP
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    user.otp = otpCode;
+    user.otpExpires = Date.now() + 10 * 60 * 1000; // 10 Minutes
+    await user.save();
 
-    res.json({
-      message: 'Login successful',
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      }
-    });
+    await sendOTPEmail(user.email, otpCode);
+
+    res.json({ otpSent: true, message: 'OTP sent to your email' });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ message: error.message });
   }
 });
 
-// Get current user
-router.get('/me', auth, async (req, res) => {
+// VERIFY OTP (Phase 2: Final JWT Issuance)
+router.post('/verify-otp', async (req, res) => {
   try {
-    res.json({
-      user: {
-        id: req.user._id,
-        name: req.user.name,
-        email: req.user.email,
-        role: req.user.role,
-        phone: req.user.phone,
-        address: req.user.address
-      }
+    const { email, otp } = req.body;
+    const user = await User.findOne({ 
+      email, 
+      otp, 
+      otpExpires: { $gt: Date.now() } 
     });
+
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired OTP' });
+    }
+
+    // Clear OTP after successful verify
+    user.otp = undefined;
+    user.otpExpires = undefined;
+    await user.save();
+
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    res.json({ token, user: { id: user._id, name: user.name, role: user.role } });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ message: error.message });
   }
+});
+
+router.get('/me', auth, async (req, res) => {
+  res.json({ user: req.user });
 });
 
 module.exports = router;
-
-
-

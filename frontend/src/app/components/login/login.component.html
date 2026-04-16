@@ -1,36 +1,63 @@
 <div class="container mt-5">
   <div class="row justify-content-center">
     <div class="col-md-5">
-      <div class="card">
+      <div class="card shadow">
         <div class="card-body p-5">
-          <h2 class="card-title text-center mb-4">Login</h2>
-          <form (ngSubmit)="onSubmit()">
+          <h2 class="card-title text-center mb-4">
+            {{ showOtpInput ? 'Two-Step Verification' : 'Login' }}
+          </h2>
+
+          <div class="alert alert-danger" *ngIf="error">{{ error }}</div>
+
+          <form *ngIf="!showOtpInput" (ngSubmit)="onSubmit()">
             <div class="mb-3">
               <label for="email" class="form-label">Email</label>
-              <input type="email" class="form-control" id="email" [(ngModel)]="email" name="email" required>
+              <input type="email" class="form-control" id="email" [(ngModel)]="email" name="email" placeholder="Enter your email" required>
             </div>
             <div class="mb-3">
               <label for="password" class="form-label">Password</label>
-              <input type="password" class="form-control" id="password" [(ngModel)]="password" name="password" required>
+              <input type="password" class="form-control" id="password" [(ngModel)]="password" name="password" placeholder="Enter password" required>
             </div>
-            <div class="alert alert-danger" *ngIf="error">{{ error }}</div>
             <button type="submit" class="btn btn-primary w-100" [disabled]="loading">
               <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
-              Login
+              {{ loading ? 'Checking...' : 'Get OTP' }}
             </button>
             <p class="text-center mt-3">
               Don't have an account? <a routerLink="/register">Register here</a>
             </p>
           </form>
+
+          <form *ngIf="showOtpInput" (ngSubmit)="onVerifyOtp()">
+            <div class="alert alert-info py-2 small text-center">
+              An OTP has been sent to <br><strong>{{ email }}</strong>
+            </div>
+
+            <div class="mb-4 text-center">
+              <label for="otp" class="form-label fw-bold">Enter 6-Digit Code</label>
+              <input type="text" 
+                     class="form-control text-center fw-bold fs-3" 
+                     id="otp" 
+                     [(ngModel)]="otp" 
+                     name="otp" 
+                     maxlength="6" 
+                     placeholder="· · · · · ·" 
+                     style="letter-spacing: 10px;"
+                     required>
+              <div class="form-text mt-2 text-muted">Check your email for the verification code.</div>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100 btn-lg" [disabled]="loading || otp.length < 6">
+              <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+              Verify & Login
+            </button>
+
+            <button type="button" class="btn btn-link w-100 mt-3 btn-sm text-decoration-none" (click)="showOtpInput = false">
+              <i class="bi bi-arrow-left"></i> Back to Login
+            </button>
+          </form>
+
         </div>
       </div>
     </div>
   </div>
 </div>
-
-
-
-
-
-
-

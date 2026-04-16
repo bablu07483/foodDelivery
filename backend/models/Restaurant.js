@@ -22,6 +22,18 @@ const restaurantSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  // ✅ NEW: Geospatial Location Field
+  location: {
+    type: {
+      type: String, 
+      enum: ['Point'], // Must be 'Point'
+      default: 'Point'
+    },
+    coordinates: {
+      type: [Number], // [Longitude, Latitude]
+      required: true
+    }
+  },
   phone: {
     type: String,
     trim: true
@@ -40,7 +52,7 @@ const restaurantSchema = new mongoose.Schema({
   timestamps: true
 });
 
+// ✅ CRITICAL: Create a 2dsphere index for distance queries
+restaurantSchema.index({ location: '2dsphere' });
+
 module.exports = mongoose.model('Restaurant', restaurantSchema);
-
-
-

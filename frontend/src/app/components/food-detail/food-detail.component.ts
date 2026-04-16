@@ -45,19 +45,24 @@ export class FoodDetailComponent implements OnInit {
 
   addToCart() {
     if (!this.authService.isAuthenticated()) {
+      alert('Please login to add items to cart');
       this.router.navigate(['/login']);
       return;
     }
 
+    // UPDATED: Ensuring all fields required by CartItem are present
     this.cartService.addToCart({
       foodId: this.food._id,
       name: this.food.name,
       price: this.food.price,
       quantity: this.quantity,
-      image: this.food.image
+      image: this.food.image,
+      ingredients: 'Standard Preparation' // Required by your CartItem interface
     });
 
     alert(`${this.food.name} added to cart!`);
+    // Optional: Redirect to cart to show the reaction
+    // this.router.navigate(['/cart']);
   }
 
   increaseQuantity() {
@@ -70,10 +75,3 @@ export class FoodDetailComponent implements OnInit {
     }
   }
 }
-
-
-
-
-
-
-

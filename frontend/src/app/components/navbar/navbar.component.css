@@ -16,6 +16,24 @@
   top: 5px;
   right: 5px;
 }
+/* Custom Admin Button Styling */
+.admin-btn {
+    color: #ffc107 !important; /* Gold/Yellow */
+    border: 1px solid #ffc107;
+    background: transparent;
+    transition: all 0.3s ease;
+}
+
+.admin-btn:hover, .admin-btn.active {
+    background-color: #ffc107 !important;
+    color: #000 !important; /* High contrast black text on hover */
+    box-shadow: 0 0 12px rgba(255, 193, 7, 0.4);
+}
+
+.badge {
+    font-size: 0.7rem;
+    padding: 0.35em 0.5em;
+}
 
 
 

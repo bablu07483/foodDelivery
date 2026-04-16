@@ -1,100 +1,94 @@
 <div class="container my-5">
-  <h2 class="section-title">Shopping Cart</h2>
+  <h2 class="fw-bold mb-4">Shopping Cart</h2>
 
   <div class="row" *ngIf="cartItems.length > 0">
     <div class="col-md-8">
-      <div class="card">
-        <div class="card-body">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Item</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th>Total</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let item of cartItems">
-                <td>
-                  <div class="d-flex align-items-center">
-                    <img [src]="item.image || 'https://via.placeholder.com/80x80'" class="me-3" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;" [alt]="item.name">
-                    <div>
-                      <strong>{{ item.name }}</strong>
-                    </div>
-                  </div>
-                </td>
-                <td>₹{{ item.price }}</td>
-                <td>
-                  <div class="btn-group">
-                    <button class="btn btn-sm btn-outline-secondary" (click)="updateQuantity(item.foodId, item.quantity - 1)">-</button>
-                    <span class="btn btn-sm btn-outline-secondary">{{ item.quantity }}</span>
-                    <button class="btn btn-sm btn-outline-secondary" (click)="updateQuantity(item.foodId, item.quantity + 1)">+</button>
-                  </div>
-                </td>
-                <td>₹{{ item.price * item.quantity }}</td>
-                <td>
-                  <button class="btn btn-sm btn-danger" (click)="removeItem(item.foodId)">
-                    <i class="bi bi-trash"></i>
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+      <div class="card border-0 shadow-sm rounded-4 p-3 mb-3" *ngFor="let item of cartItems">
+         <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <img [src]="item.image || 'assets/default-food.jpg'" class="rounded-3 me-3" width="60" height="60" style="object-fit: cover;">
+                <div>
+                    <h6 class="mb-0 fw-bold">{{item.name}}</h6>
+                    <small class="text-muted">₹{{item.price}}</small>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-sm btn-outline-dark" (click)="updateQuantity(item.foodId, item.quantity - 1)">-</button>
+                <span class="btn btn-sm disabled bg-white text-dark fw-bold">{{item.quantity}}</span>
+                <button class="btn btn-sm btn-outline-dark" (click)="updateQuantity(item.foodId, item.quantity + 1)">+</button>
+                <button class="btn btn-sm text-danger ms-2" (click)="removeItem(item.foodId)"><i class="bi bi-trash"></i></button>
+            </div>
+         </div>
       </div>
     </div>
+
     <div class="col-md-4">
-      <div class="card">
+      <div class="card border-0 shadow-sm rounded-4">
         <div class="card-body">
-          <h5 class="card-title">Order Summary</h5>
+          <h5 class="fw-bold mb-3">Delivery Details</h5>
+          
+          <div class="p-3 bg-light rounded-3 mb-3 border">
+            <label class="small fw-bold text-uppercase text-primary d-block mb-1">Registered Address</label>
+            <p class="small mb-0 text-dark">{{ deliveryAddress || 'No address selected.' }}</p>
+          </div>
+
+          <button class="btn btn-outline-primary btn-sm w-100 rounded-pill mb-3" (click)="openMap()">
+            <i class="bi bi-map-fill me-2"></i> Change / Pin New Location
+          </button>
+
+          <div class="mb-3">
+            <label class="small fw-bold">Contact Number</label>
+            <input type="tel" class="form-control" [(ngModel)]="phone" placeholder="Enter phone number">
+          </div>
+
+          <div class="mb-4">
+            <label class="small fw-bold">Payment Mode</label>
+            <select class="form-select" [(ngModel)]="paymentMode">
+              <option value="COD">Cash on Delivery</option>
+              <option value="UPI">UPI / Scan</option>
+              <option value="CARD">Credit/Debit Card</option>
+            </select>
+          </div>
+
           <hr>
-          <div class="d-flex justify-content-between mb-2">
-            <span>Subtotal:</span>
+          <div class="d-flex justify-content-between h5 fw-bold mb-4 text-primary">
+            <span>Total:</span>
             <span>₹{{ totalPrice }}</span>
           </div>
-          <div class="d-flex justify-content-between mb-2">
-            <span>Delivery:</span>
-            <span>Free</span>
-          </div>
-          <hr>
-          <div class="d-flex justify-content-between mb-3">
-            <strong>Total:</strong>
-            <strong class="text-primary">₹{{ totalPrice }}</strong>
-          </div>
 
-          <div class="mb-3">
-            <label class="form-label">Delivery Address *</label>
-            <textarea class="form-control" [(ngModel)]="deliveryAddress" rows="3" required></textarea>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Phone Number *</label>
-            <input type="tel" class="form-control" [(ngModel)]="phone" required>
-          </div>
+          <div class="alert alert-danger py-2 small" *ngIf="error">{{ error }}</div>
 
-          <div class="alert alert-danger" *ngIf="error">{{ error }}</div>
-
-          <button class="btn btn-primary w-100 btn-lg" (click)="placeOrder()" [disabled]="loading">
+          <button class="btn btn-primary w-100 btn-lg rounded-pill fw-bold shadow" (click)="placeOrder()" [disabled]="loading || cartItems.length === 0">
             <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
-            Place Order
+            Confirm Order
           </button>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="empty-state" *ngIf="cartItems.length === 0">
-    <i class="bi bi-cart-x"></i>
-    <h4>Your cart is empty</h4>
-    <p>Start adding items to your cart</p>
-    <button class="btn btn-primary" routerLink="/foods">Browse Foods</button>
+  <div class="text-center py-5" *ngIf="cartItems.length === 0">
+    <i class="bi bi-cart-x display-1 text-muted"></i>
+    <h4 class="mt-3">Your cart is empty</h4>
+    <button class="btn btn-primary mt-3 px-5 rounded-pill" routerLink="/foods">Browse Menu</button>
+  </div>
+
+  <div class="map-modal-overlay" *ngIf="showMapModal">
+    <div class="map-modal-content rounded-4 shadow-lg overflow-hidden bg-white">
+      <div class="p-3 bg-white d-flex justify-content-between align-items-center border-bottom">
+        <h6 class="mb-0 fw-bold">Select Delivery Point</h6>
+        <button class="btn-close" (click)="showMapModal = false"></button>
+      </div>
+      
+      <div #mapContainer style="height: 400px; width: 100%;"></div>
+
+      <div class="p-3 bg-white border-top">
+        <p class="small text-muted mb-3"><i class="bi bi-info-circle"></i> Drag the pin to your exact building.</p>
+        <button class="btn btn-success w-100 rounded-pill fw-bold py-2" (click)="confirmMapLocation()" [disabled]="loading">
+          <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+          {{ loading ? 'Identifying Address...' : 'Confirm This Location' }}
+        </button>
+      </div>
+    </div>
   </div>
 </div>
-
-
-
-
-
-
-

@@ -12,9 +12,19 @@ export class HomeComponent implements OnInit {
   restaurants: any[] = [];
   featuredFoods: any[] = [];
   loading = true;
-  showRestaurants: boolean = false;
-  showFoods: boolean = false;
 
+  // Complete list of categories for the Home Page cards
+  categories = [
+    { id: 'veg', name: 'Vegetarian', icon: 'https://img.icons8.com/color/96/vegetarian-food.png' },
+    { id: 'non-veg', name: 'Non-Vegetarian', icon: 'https://cdn-icons-png.flaticon.com/512/1046/1046769.png' },
+    { id: 'beverages', name: 'Beverages', icon: 'https://img.icons8.com/color/96/cocktail.png' },
+    { id: 'snacks & starters', name: 'Snacks & Starters', icon: 'https://img.icons8.com/color/96/nachos.png' },
+    { id: 'desserts', name: 'Desserts', icon: 'https://img.icons8.com/color/96/cupcake.png' },
+    { id: 'breakfast', name: 'Breakfast', icon: 'https://cdn-icons-png.flaticon.com/512/8230/8230325.png' },
+    { id: 'fastfood', name: 'Fast Food', icon: 'https://img.icons8.com/color/96/hamburger.png' },
+    { id: 'south-indian', name: 'South Indian', icon: 'https://cdn-icons-png.flaticon.com/128/1816/1816041.png' },
+    { id: 'diet', name: 'Diet Section', icon: 'https://img.icons8.com/color/96/salad.png' }
+  ];
 
   constructor(
     private restaurantService: RestaurantService,
@@ -50,6 +60,42 @@ export class HomeComponent implements OnInit {
       }
     });
   }
+  getBadgeClass(category: string): string {
+  if (!category) return 'bg-secondary';
+
+  // Normalize to lowercase to ensure it matches the backend enum
+  const cat = category.toLowerCase();
+
+  switch (cat) {
+    case 'veg':
+      return 'bg-success';
+    case 'non-veg':
+      return 'bg-danger';
+    case 'beverages':
+      return 'bg-info text-dark';
+    case 'breakfast':
+      return 'bg-warning text-dark';
+    case 'desserts':
+      return 'bg-primary';
+    case 'snacks & starters':
+      return 'bg-dark';
+    case 'fastfood':
+      return 'bg-warning text-dark';
+    case 'south-indian':
+      return 'bg-secondary';
+    default:
+      return 'bg-secondary';
+  }
+}
+
+  navigateToCategory(category: string) {
+    if (category === 'diet') {
+      this.router.navigate(['/diet']);
+    } else {
+      // Navigates to food list and filters automatically via query params
+      this.router.navigate(['/foods'], { queryParams: { category: category } });
+    }
+  }
 
   viewRestaurant(id: string) {
     this.router.navigate(['/foods'], { queryParams: { restaurant: id } });
@@ -59,12 +105,3 @@ export class HomeComponent implements OnInit {
     this.router.navigate(['/foods', id]);
   }
 }
-
-
-
-
-
-
-
-
-
