@@ -5,32 +5,36 @@ const { auth } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Create order
+// 1. Create Order
 router.post('/', auth, async (req, res) => {
   try {
     const { items, deliveryAddress, phone } = req.body;
-
-    if (!items || items.length === 0) {
-      return res.status(400).json({ message: 'Cart is empty' });
-    }
+    if (!items || items.length === 0) return res.status(400).json({ message: 'Cart is empty' });
 
     let totalAmount = 0;
     const orderItems = [];
 
     for (const item of items) {
-      const food = await Food.findById(item.foodId);
-      if (!food || !food.isAvailable) {
-        return res.status(400).json({ message: `Food item ${item.foodId} not available` });
+      const food = await Food.findById(item.foodId).catch(() => null);
+      if (food) {
+        totalAmount += food.price * item.quantity;
+        orderItems.push({ 
+          food: food._id, 
+          name: food.name,
+          image: food.image, 
+          quantity: item.quantity, 
+          price: food.price 
+        });
+      } else {
+        totalAmount += (item.price || 0) * item.quantity;
+        orderItems.push({ 
+          food: item.foodId, 
+          name: item.name || 'Custom Diet Item',
+          image: item.image || 'https://via.placeholder.com/60x60',
+          quantity: item.quantity, 
+          price: item.price || 0 
+        });
       }
-
-      const itemTotal = food.price * item.quantity;
-      totalAmount += itemTotal;
-
-      orderItems.push({
-        food: food._id,
-        quantity: item.quantity,
-        price: food.price
-      });
     }
 
     const order = new Order({
@@ -42,83 +46,44 @@ router.post('/', auth, async (req, res) => {
     });
 
     await order.save();
-    await order.populate('items.food', 'name image price category nutrition');
-
-    res.status(201).json({
-      message: 'Order placed successfully',
-      order
-    });
+    res.status(201).json({ message: 'Order placed successfully', order });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
-// Get user orders
+// 2. Get My Orders
 router.get('/my-orders', auth, async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.user._id })
-      .populate('items.food', 'name image price category nutrition')
-      .sort({ createdAt: -1 });
-
+    const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
     res.json(orders);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
-// Get order by ID
-router.get('/:id', auth, async (req, res) => {
+// ✅ ADDED: Update Order Status (For Cancellation & Editing)
+router.patch('/:id', auth, async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id)
-      .populate('items.food', 'name image price category nutrition')
-      .populate('user', 'name email phone');
-
-    if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
-    }
-
-    // Check if user owns the order or is admin
-    if (order.user._id.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'Access denied' });
-    }
-
-    res.json(order);
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-});
-
-// Update order status (for admin)
-router.patch('/:id/status', auth, async (req, res) => {
-  try {
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'Access denied. Admin only.' });
-    }
-
     const { status } = req.body;
-    const validStatuses = ['pending', 'confirmed', 'preparing', 'out for delivery', 'delivered', 'cancelled'];
-
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({ message: 'Invalid status' });
-    }
-
-    const order = await Order.findByIdAndUpdate(
-      req.params.id,
-      { status },
-      { new: true }
-    ).populate('items.food', 'name image price');
+    const order = await Order.findOne({ _id: req.params.id, user: req.user._id });
 
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
 
-    res.json(order);
+    // Security Check: Don't allow cancellation if already delivered
+    if (status === 'cancelled' && order.status === 'delivered' && order.status === 'pick-up' && order.status === 'on the way') {
+      return res.status(400).json({ message: 'Cannot cancel a delivered order' });
+    }
+
+    order.status = status || order.status;
+    await order.save();
+
+    res.json({ message: 'Order updated successfully', order });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
 module.exports = router;
-
-
-

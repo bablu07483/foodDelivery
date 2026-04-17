@@ -7,6 +7,7 @@ export interface CartItem {
   price: number;
   quantity: number;
   image?: string;
+  ingredients?: string; // ✅ ADDED THIS LINE TO FIX COMPILATION ERROR
 }
 
 @Injectable({
@@ -37,6 +38,8 @@ export class CartService {
 
     if (existingItem) {
       existingItem.quantity += item.quantity;
+      // Optionally update ingredients if you want the latest customization
+      existingItem.ingredients = item.ingredients; 
     } else {
       currentItems.push(item);
     }
@@ -82,32 +85,3 @@ export class CartService {
     return this.cartItemsSubject.value.reduce((total, item) => total + item.quantity, 0);
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

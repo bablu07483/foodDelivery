@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CartService } from '../../services/cart.service';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
@@ -20,30 +20,37 @@ export class NavbarComponent implements OnInit {
     private cartService: CartService,
     private router: Router
   ) {
-    this.cartItemsCount$ = new Observable(observer => {
-      this.cartService.cartItems$.subscribe(items => {
-        observer.next(items.reduce((sum, item) => sum + item.quantity, 0));
+    // Calculates total quantity of items in the cart for the badge
+    this.cartItemsCount$ = this.cartService.cartItems$.pipe(
+      map(items => items.reduce((sum, item) => sum + item.quantity, 0))
+    );
+  }
+
+  ngOnInit() {
+    // Subscribe to currentUser$ to reactively update the UI
+    this.authService.currentUser$.subscribe(user => {
+      // 1. Capture the user object
+      this.user = user;
+      
+      // 2. Determine authentication status
+      // With the OTP fix, this token only exists AFTER verifyOtp succeeds
+      const token = localStorage.getItem('token');
+      this.isAuthenticated = !!token;
+      
+      // 3. Check Admin status
+      this.isAdmin = this.isAuthenticated && user?.role === 'admin';
+      
+      console.log('Navbar Status:', { 
+        name: this.user?.name, 
+        auth: this.isAuthenticated 
       });
     });
   }
 
-  ngOnInit() {
-    this.authService.currentUser$.subscribe(user => {
-      this.user = user;
-      this.isAuthenticated = !!user;
-      this.isAdmin = user?.role === 'admin';
-    });
-  }
-
   logout() {
-    this.authService.logout();
-    this.router.navigate(['/home']);
+    // Standard logout procedure
+    localStorage.clear();
+    this.authService.logout(); 
+    this.router.navigate(['/login']);
   }
 }
-
-
-
-
-
-
-

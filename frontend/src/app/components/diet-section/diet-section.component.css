@@ -1,94 +1,160 @@
-/* Card styling */
-.card {
-  border: none;
-  border-radius: 15px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+/* --- 1. THE BLUR OVERLAY --- */
+.focus-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.6); 
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
 }
 
-.card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+.focus-overlay.active {
+  opacity: 1;
+  visibility: visible;
 }
 
-/* Image */
-.card-img-top {
-  height: 200px;
-  object-fit: cover;
-  border-top-left-radius: 15px;
-  border-top-right-radius: 15px;
-}
-
-/* Nutrition Section */
-.nutrition-section {
-  background: #f8f9fa;
-  padding: 15px;
-  border-radius: 12px;
-  margin: 15px 0;
-}
-
-/* Nutrition badges layout */
-.nutrition-info {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-/* Common badge style */
-.nutrition-badge {
-  padding: 6px 10px;
-  font-size: 0.85rem;
+/* --- 2. THE FOOD CARD --- */
+.food-card {
+  background: white;
   border-radius: 20px;
-  font-weight: 500;
-  color: #fff;
-  display: inline-flex;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  position: relative;
+  /* Updated transition for a smoother "zoom" feel */
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+  border: 1px solid #f0f0f0;
+  height: 100%;
+  width: 100%;
+  display: block;
+  z-index: 1;
+}
+
+/* INSTANT HOVER: Added this for the "scrolling/moving" zoom you requested */
+.food-card:hover {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+  z-index: 2; /* Ensures the zoomed card sits above its neighbors slightly */
+}
+
+/* Only triggers after the 1.2s delay set in TS */
+.focused-card {
+  z-index: 1000 !important;
+  /* Slightly more lift and scale when the focus/blur triggers */
+  transform: translateY(-15px) scale(1.05) !important; 
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4) !important;
+  background: white !important;
+}
+
+.food-img { 
+  width: 100%; 
+  height: 180px; 
+  object-fit: cover; 
+}
+
+/* --- 3. PREMIUM POP-UP (Standard Mode) --- */
+.premium-pop-overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(15, 23, 42, 0.98);
+  backdrop-filter: blur(8px);
+  z-index: 20;
+  display: flex;
   align-items: center;
+  justify-content: center;
+  padding: 20px;
+  color: white;
+  border-radius: 20px;
+  /* Updated animation to feel like a "pop" */
+  animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.pop-data { width: 100%; text-align: center; }
+
+.macro-grid {
+  display: flex;
+  justify-content: space-around;
   gap: 5px;
 }
 
-/* Individual nutrition colors */
-.nutrition-calories {
-  background-color: #ff6b6b;
+.macro-item {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.12);
+  padding: 8px 2px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.nutrition-protein {
-  background-color: #4dabf7;
+.macro-item strong { display: block; font-size: 1rem; color: #ffce54; }
+.macro-item small { font-size: 0.6rem; text-transform: uppercase; opacity: 0.7; }
+
+.ingredients-box {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 10px;
+  border-radius: 10px;
+  max-height: 70px;
+  overflow-y: auto;
+  text-align: left;
+  border-left: 3px solid #ffce54;
+  font-size: 0.75rem;
 }
 
-.nutrition-carbs {
-  background-color: #f59f00;
+/* --- 4. DYNAMIC RESULT CARDS (Custom Mode) --- */
+.result-card {
+  transition: transform 0.3s ease;
+  border: none !important;
+  background: white;
+  width: 100%;
 }
 
-.nutrition-fats {
-  background-color: #37b24d;
+.result-card:hover {
+  transform: translateY(-5px);
 }
 
-.nutrition-fiber {
-  background-color: #845ef7;
+.target-banner {
+  background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
+  color: white;
 }
 
-/* Buttons spacing */
-.card-body .btn {
-  border-radius: 25px;
-  padding: 6px 14px;
+/* --- 5. LOADERS & MODALS --- */
+.pulse-loader {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: #ffce54;
+  animation: pulse-ring 1.2s infinite ease-in-out;
+  margin: 0 auto;
 }
 
-/* Empty state */
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: #6c757d;
+@keyframes pulse-ring {
+  0% { transform: scale(0.1); opacity: 1; }
+  100% { transform: scale(1.2); opacity: 0; }
 }
 
-.empty-state i {
-  font-size: 48px;
-  margin-bottom: 10px;
+.overlay-backdrop {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(4px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+.selection-card { width: 380px; border: none; }
 
-
-
-
-
-
-
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }

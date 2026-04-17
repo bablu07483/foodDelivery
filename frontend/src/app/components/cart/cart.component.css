@@ -2,7 +2,23 @@
   margin-bottom: 0;
 }
 
+.map-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
 
+.map-modal-content {
+  background: white;
+  width: 100%;
+  max-width: 500px;
+  position: relative;
+}
 
 
 

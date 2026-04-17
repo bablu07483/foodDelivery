@@ -1,72 +1,89 @@
 const express = require('express');
 const Food = require('../models/Food');
-const { auth } = require('../middleware/auth');
-
+const Restaurant = require('../models/Restaurant');
 const router = express.Router();
 
-// Get all foods
 router.get('/', async (req, res) => {
-  try {
-    const { category, restaurant, search } = req.query;
-    const query = { isAvailable: true };
+    try {
+        const { category, restaurant, search, minProtein, minCalories, maxCarbs, minFiber, lat, lng } = req.query;
+        let query = { isAvailable: true };
 
-    if (category) {
-      query.category = category;
-    }
-    if (restaurant) {
-      query.restaurant = restaurant;
-    }
-    if (search) {
-      query.name = { $regex: search, $options: 'i' };
-    }
+        if (restaurant === 'nearby' && lat && lng) {
+            const nearbyRestaurants = await Restaurant.find({
+                location: {
+                    $near: {
+                        $geometry: { type: "Point", coordinates: [parseFloat(lng), parseFloat(lat)] },
+                        $maxDistance: 5000 
+                    }
+                }
+            }).select('_id');
+            query.restaurant = { $in: nearbyRestaurants.map(r => r._id) };
+        } 
+        else if (restaurant && restaurant !== '' && restaurant !== 'nearby') {
+            query.restaurant = restaurant;
+        }
 
-    const foods = await Food.find(query)
-      .populate('restaurant', 'name cuisine')
-      .sort({ createdAt: -1 });
+        if (category && category !== '') query.category = category;
+        if (minProtein) query['nutrition.protein'] = { $gte: Number(minProtein) };
+        if (minCalories) query['nutrition.calories'] = { $gte: Number(minCalories) };
+        if (minFiber) query['nutrition.fiber'] = { $gte: Number(minFiber) };
+        if (maxCarbs) query['nutrition.carbohydrates'] = { $lte: Number(maxCarbs) };
 
-    res.json(foods);
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
+        if (search && search.trim() !== '') {
+            query.$or = [
+                { name: { $regex: search.trim(), $options: 'i' } },
+                { description: { $regex: search.trim(), $options: 'i' } }
+            ];
+        }
+
+        const foods = await Food.find(query)
+            .populate('restaurant', 'name cuisine image')
+            .sort({ createdAt: -1 });
+
+        res.json(foods);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
 });
 
-// Get food by ID
-router.get('/:id', async (req, res) => {
-  try {
-    const food = await Food.findById(req.params.id)
-      .populate('restaurant', 'name cuisine address phone');
-
-    if (!food) {
-      return res.status(404).json({ message: 'Food not found' });
+router.post('/', async (req, res) => {
+    try {
+        const data = req.body;
+        if (Array.isArray(data)) {
+            const formattedData = data.map(item => ({
+                ...item,
+                isAvailable: item.isAvailable !== undefined ? item.isAvailable : true,
+                nutrition: {
+                    protein: item.nutrition?.protein || 0,
+                    calories: item.nutrition?.calories || 0,
+                    fiber: item.nutrition?.fiber || 0,
+                    carbohydrates: item.nutrition?.carbohydrates || 0,
+                    fats: item.nutrition?.fats || 0
+                }
+            }));
+            const savedFoods = await Food.insertMany(formattedData);
+            const populatedFoods = await Food.populate(savedFoods, { path: 'restaurant', select: 'name cuisine image' });
+            return res.status(201).json(populatedFoods);
+        } else {
+            const { name, description, price, category, image, restaurant, nutrition, isAvailable } = data;
+            const newFood = new Food({
+                name, description, price, category, image, restaurant,
+                isAvailable: isAvailable !== undefined ? isAvailable : true,
+                nutrition: {
+                    protein: nutrition?.protein || 0,
+                    calories: nutrition?.calories || 0,
+                    fiber: nutrition?.fiber || 0,
+                    carbohydrates: nutrition?.carbohydrates || 0,
+                    fats: nutrition?.fats || 0
+                }
+            });
+            const savedFood = await newFood.save();
+            const populatedFood = await savedFood.populate('restaurant', 'name cuisine image');
+            res.status(201).json(populatedFood);
+        }
+    } catch (error) {
+        res.status(400).json({ message: 'Error creating food item', error: error.message });
     }
-
-    res.json(food);
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-});
-
-// Get diet foods (foods with nutritional information)
-router.get('/diet/all', async (req, res) => {
-  try {
-    const { category } = req.query;
-    const query = { isAvailable: true };
-    
-    if (category) {
-      query.category = category;
-    }
-
-    const foods = await Food.find(query)
-      .populate('restaurant', 'name')
-      .sort({ createdAt: -1 });
-
-    res.json(foods);
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
 });
 
 module.exports = router;
-
-
-

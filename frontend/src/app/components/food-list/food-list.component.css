@@ -1,6 +1,6 @@
 /* Food card image */
 .card-img-top {
-  height: 220px;              /* Slightly bigger image */
+  height: 220px;
   width: 100%;
   object-fit: cover;
   border-top-left-radius: 12px;
@@ -50,10 +50,25 @@
   font-weight: 500;
 }
 
+/* --- ADDED: CUSTOMIZATION POPUP STYLES --- */
+.overlay-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000; /* Ensures it is on top of cards and navbar */
+}
 
-
-
-
-
-
-
+.selection-card {
+  background: white;
+  width: 90%;
+  max-width: 400px;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+}

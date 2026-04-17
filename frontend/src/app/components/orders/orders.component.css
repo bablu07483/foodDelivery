@@ -1,10 +1,75 @@
 .card {
-  margin-bottom: 20px;
+  margin-bottom: 25px;
+  border: 1px solid rgba(0,0,0,0.08) !important;
 }
 
+/* Timeline Stepper CSS */
+.timeline-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  padding: 10px 0;
+}
 
+.timeline-container::before {
+  content: "";
+  position: absolute;
+  top: 18px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #e9ecef;
+  z-index: 1;
+}
 
+.timeline-step {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  flex: 1;
+}
 
+.icon-circle {
+  width: 36px;
+  height: 36px;
+  background: #fff;
+  border: 2px solid #dee2e6;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 8px;
+  color: #adb5bd;
+  transition: all 0.3s ease;
+}
 
+.step-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #adb5bd;
+  text-transform: uppercase;
+}
 
+/* Logic Colors */
+.timeline-step.completed .icon-circle {
+  background: #0d6efd;
+  border-color: #0d6efd;
+  color: #fff;
+}
 
+.timeline-step.completed .step-label {
+  color: #0d6efd;
+}
+
+/* Current pulsing step */
+.timeline-step.completed:last-of-type .icon-circle {
+  box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.2);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(13, 110, 253, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0); }
+}

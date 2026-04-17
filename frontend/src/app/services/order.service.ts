@@ -24,49 +24,21 @@ export class OrderService {
   }
 
   createOrder(orderData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/orders`, orderData, {
-      headers: this.getHeaders()
-    });
+    return this.http.post(`${this.apiUrl}/orders`, orderData, { headers: this.getHeaders() });
   }
 
   getMyOrders(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/orders/my-orders`, {
-      headers: this.getHeaders()
-    });
+    return this.http.get(`${this.apiUrl}/orders/my-orders`, { headers: this.getHeaders() });
   }
 
   getOrderById(id: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/orders/${id}`, {
-      headers: this.getHeaders()
-    });
+    return this.http.get(`${this.apiUrl}/orders/${id}`, { headers: this.getHeaders() });
   }
+
+ updateOrderStatus(orderId: string, status: string): Observable<any> {
+  // This matches the PATCH /:id route we just added
+  return this.http.patch(`${this.apiUrl}/orders/${orderId}`, { status }, {
+    headers: this.getHeaders()
+  });
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+}
